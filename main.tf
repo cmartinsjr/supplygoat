@@ -14,8 +14,146 @@ resource "aws_s3_bucket" "data" {
 }
 
 
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+
+
+
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "data" {
+  depends_on = [aws_s3_bucket_versioning.data]
+  role   = aws_iam_role.data.arn
+  bucket = aws_s3_bucket.data.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
+  bucket = aws_s3_bucket.data.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 resource "aws_s3_bucket" "data_log_bucket" {
   bucket = "data-log-bucket"
+}
+
+
+resource "aws_s3_bucket_versioning" "data_log_bucket" {
+  bucket = aws_s3_bucket.data_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.data_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "data_log_bucket" {
+  depends_on = [aws_s3_bucket_versioning.data_log_bucket]
+  role   = aws_iam_role.data_log_bucket.arn
+  bucket = aws_s3_bucket.data_log_bucket.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "data_log_bucket" {
+  bucket = aws_s3_bucket.data_log_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+
+resource "aws_s3_bucket_versioning" "data_log_bucket" {
+  bucket = aws_s3_bucket.data_log_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 resource "aws_s3_bucket_logging" "data" {
@@ -64,6 +202,75 @@ resource "aws_s3_bucket" "financials" {
 }
 
 
+resource "aws_s3_bucket_versioning" "financials" {
+  bucket = aws_s3_bucket.financials.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.financials.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "financials" {
+  depends_on = [aws_s3_bucket_versioning.financials]
+  role   = aws_iam_role.financials.arn
+  bucket = aws_s3_bucket.financials.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+
+
+
+resource "aws_s3_bucket_versioning" "financials" {
+  bucket = aws_s3_bucket.financials.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "financials" {
+  bucket = aws_s3_bucket.financials.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "financials" {
   bucket = aws_s3_bucket.financials.bucket
 
@@ -78,6 +285,75 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "financials" {
 
 resource "aws_s3_bucket" "financials_log_bucket" {
   bucket = "financials-log-bucket"
+}
+
+
+resource "aws_s3_bucket_versioning" "financials_log_bucket" {
+  bucket = aws_s3_bucket.financials_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.financials_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "financials_log_bucket" {
+  depends_on = [aws_s3_bucket_versioning.financials_log_bucket]
+  role   = aws_iam_role.financials_log_bucket.arn
+  bucket = aws_s3_bucket.financials_log_bucket.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "financials_log_bucket" {
+  bucket = aws_s3_bucket.financials_log_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+
+resource "aws_s3_bucket_versioning" "financials_log_bucket" {
+  bucket = aws_s3_bucket.financials_log_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 resource "aws_s3_bucket_logging" "financials" {
@@ -110,6 +386,66 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "operations" {
 
   rule {
     apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+
+
+
+resource "aws_s3_bucket_versioning" "operations" {
+  bucket = aws_s3_bucket.operations.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.operations.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "operations" {
+  depends_on = [aws_s3_bucket_versioning.operations]
+  role   = aws_iam_role.operations.arn
+  bucket = aws_s3_bucket.operations.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "operations" {
+  bucket = aws_s3_bucket.operations.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
       sse_algorithm     = "AES256"
     }
   }
@@ -119,6 +455,75 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "operations" {
 
 resource "aws_s3_bucket" "operations_log_bucket" {
   bucket = "operations-log-bucket"
+}
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "operations_log_bucket" {
+  bucket = aws_s3_bucket.operations_log_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+
+
+resource "aws_s3_bucket_versioning" "operations_log_bucket" {
+  bucket = aws_s3_bucket.operations_log_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+
+resource "aws_s3_bucket_versioning" "operations_log_bucket" {
+  bucket = aws_s3_bucket.operations_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.operations_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "operations_log_bucket" {
+  depends_on = [aws_s3_bucket_versioning.operations_log_bucket]
+  role   = aws_iam_role.operations_log_bucket.arn
+  bucket = aws_s3_bucket.operations_log_bucket.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
 }
 
 resource "aws_s3_bucket_logging" "operations" {
@@ -143,6 +548,66 @@ resource "aws_s3_bucket" "data_science" {
   force_destroy = true
 }
 
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "data_science" {
+  bucket = aws_s3_bucket.data_science.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+
+
+
+resource "aws_s3_bucket_versioning" "data_science" {
+  bucket = aws_s3_bucket.data_science.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.data_science.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "data_science" {
+  depends_on = [aws_s3_bucket_versioning.data_science]
+  role   = aws_iam_role.data_science.arn
+  bucket = aws_s3_bucket.data_science.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "data_science" {
   bucket = aws_s3_bucket.data_science.bucket
@@ -178,8 +643,126 @@ resource "aws_s3_bucket" "logs" {
 }
 
 
+resource "aws_s3_bucket_versioning" "logs" {
+  bucket = aws_s3_bucket.logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "logs" {
+  depends_on = [aws_s3_bucket_versioning.logs]
+  role   = aws_iam_role.logs.arn
+  bucket = aws_s3_bucket.logs.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+
+
 resource "aws_s3_bucket" "logs_log_bucket" {
   bucket = "logs-log-bucket"
+}
+
+
+resource "aws_s3_bucket_versioning" "logs_log_bucket" {
+  bucket = aws_s3_bucket.logs_log_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs_log_bucket" {
+  bucket = aws_s3_bucket.logs_log_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+
+resource "aws_s3_bucket_versioning" "logs_log_bucket" {
+  bucket = aws_s3_bucket.logs_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "destination" {
+  bucket = aws_s3_bucket.logs_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "logs_log_bucket" {
+  depends_on = [aws_s3_bucket_versioning.logs_log_bucket]
+  role   = aws_iam_role.logs_log_bucket.arn
+  bucket = aws_s3_bucket.logs_log_bucket.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.destination.arn
+      storage_class = "STANDARD"
+    }
+  }
 }
 
 resource "aws_s3_bucket_logging" "logs" {
