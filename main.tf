@@ -14,6 +14,56 @@ resource "aws_s3_bucket" "data" {
 }
 
 
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "data_destination" {
+  # checkov:skip=CKV_AWS_144:the resource is auto generated to be a destination for replication
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "data_replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "data" {
+  depends_on = [aws_s3_bucket_versioning.data]
+  role   = aws_iam_role.data_replication.arn
+  bucket = aws_s3_bucket.data.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.data_destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
+
+
 resource "aws_s3_bucket" "data_log_bucket" {
   bucket = "data-log-bucket"
 }
@@ -79,6 +129,56 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "financials" {
 resource "aws_s3_bucket" "financials_log_bucket" {
   bucket = "financials-log-bucket"
 }
+
+
+resource "aws_s3_bucket_versioning" "financials_log_bucket" {
+  bucket = aws_s3_bucket.financials_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "financials_log_bucket_destination" {
+  # checkov:skip=CKV_AWS_144:the resource is auto generated to be a destination for replication
+  bucket = aws_s3_bucket.financials_log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_iam_role" "financials_log_bucket_replication" {
+  name = "aws-iam-role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_replication_configuration" "financials_log_bucket" {
+  depends_on = [aws_s3_bucket_versioning.financials_log_bucket]
+  role   = aws_iam_role.financials_log_bucket_replication.arn
+  bucket = aws_s3_bucket.financials_log_bucket.id
+  rule {
+    id = "foobar"
+    status = "Enabled"
+    destination {
+      bucket        = aws_s3_bucket.financials_log_bucket_destination.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
+
 
 resource "aws_s3_bucket_logging" "financials" {
   bucket = aws_s3_bucket.financials.id
